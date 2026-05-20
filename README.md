@@ -1,53 +1,72 @@
-# Claude Builders Bounty 🤖
+# 🤖 Claude Review — AI-Powered PR Review Agent
 
-> A community bounty board for Claude Code builders.
+Drop this script into any repo. Give it a PR URL, get a structured code review back.
 
-Building with Claude Code? Have tasks to delegate?
-Want to get paid for contributing to AI projects?
-You're in the right place.
+## Quick Start
+
+```bash
+# 1. Set your API key
+export DEEPSEEK_API_KEY="sk-..."    # or ANTHROPIC_API_KEY
+
+# 2. (Optional) Set GitHub token for higher rate limits
+export GITHUB_TOKEN="ghp_..."
+
+# 3. Run it
+python3 claude-review --pr https://github.com/owner/repo/pull/123
+```
+
+## Usage
+
+```
+claude-review --pr <URL> [--model deepseek-chat] [--json]
+```
+
+| Flag | Description |
+|------|-------------|
+| `--pr` | GitHub PR URL (required) |
+| `--model` | AI model (default: `deepseek-chat`, also supports `claude-sonnet-4-20250514`) |
+| `--json` | Output raw JSON instead of Markdown |
+
+## Output
+
+A structured Markdown review with:
+
+- **Summary** — 2-3 sentence overview
+- **Risks** — severity-rated issues (🔴 high / 🟡 medium / 🟢 low)
+- **Suggestions** — categorized improvement ideas (bug, performance, security, style, architecture, testing)
+- **Confidence** — 🔴 low / 🟡 medium / 🟢 high
+
+## How It Works
+
+1. Parses the PR URL → extracts owner/repo/number
+2. Fetches PR diff via GitHub API (with token if available)
+3. Sends diff to AI with a structured review prompt
+4. Parses JSON response → renders Markdown
+
+## Sample Output
+
+See `sample_review_1.md` and `sample_review_2.md` for real outputs.
+
+## Configuration
+
+| Env Var | Required | Default |
+|---------|----------|---------|
+| `DEEPSEEK_API_KEY` | Yes* | — |
+| `ANTHROPIC_API_KEY` | Yes* | — |
+| `GITHUB_TOKEN` | No | — |
+| `AI_BASE_URL` | No | `https://api.deepseek.com/v1` |
+| `CLAUDE_REVIEW_MODEL` | No | `deepseek-chat` |
+
+*At least one AI API key required.
+
+## Dependencies
+
+Only `requests` (standard Python library).
+
+```bash
+pip install requests
+```
 
 ---
 
-## How it works
-
-**To post a bounty**
-1. Open a GitHub issue with a clear description and acceptance criteria
-2. Comment `/opire create $XXX` in the issue to set the reward
-3. Share the link — contributors will find it
-
-**To claim a bounty**
-1. Browse the open issues below
-2. Comment `/opire try` in the issue you want to work on
-3. Submit a PR — payment is automatic on merge ✅
-
----
-
-## Active Bounties
-
-| # | Task | Amount | Status |
-|---|------|--------|--------|
-| [#1](../../issues/1) | SKILL: Generate a CHANGELOG from git history | $50 | 🟢 Open |
-| [#2](../../issues/2) | TEMPLATE: CLAUDE.md for a Next.js + SQLite project | $75 | 🟢 Open |
-| [#3](../../issues/3) | HOOK: Block destructive bash commands in Claude Code | $100 | 🟢 Open |
-| [#4](../../issues/4) | AGENT: PR reviewer with structured Markdown output | $150 | 🟢 Open |
-| [#5](../../issues/5) | WORKFLOW: n8n + Claude API — automated weekly dev summary | $200 | 🟢 Open |
-
----
-
-## Rules
-
-- Tasks must be related to Claude Code or AI tooling
-- Every issue must have clear acceptance criteria before a bounty is activated
-- Payment is handled by [Opire](https://opire.dev) (Stripe)
-- Quality over speed — a solid PR beats a fast one
-
----
-
-## Community
-
-- 🐦 X: [@ClaudeBounty](https://x.com/ClaudeBounty)
-- 📧 Contact: claudebounty@gmail.com
-
----
-
-*Started by the Claude builder community · March 2026 · MIT License*
+*Part of the [Claude Builders Bounty](https://github.com/claude-builders-bounty) program · Issue #4*
