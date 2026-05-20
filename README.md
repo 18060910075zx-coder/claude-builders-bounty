@@ -1,53 +1,68 @@
-# Claude Builders Bounty 🤖
+# Generate Changelog — Claude Code Skill
 
-> A community bounty board for Claude Code builders.
+Generate a structured `CHANGELOG.md` from git history in one command.
 
-Building with Claude Code? Have tasks to delegate?
-Want to get paid for contributing to AI projects?
-You're in the right place.
+## Setup (3 steps)
+
+```bash
+# 1. Copy the skill to your project
+cp SKILL.md .claude/skills/generate-changelog.md
+cp changelog.sh scripts/changelog.sh
+chmod +x scripts/changelog.sh
+
+# 2. (Optional) Add to .gitignore if you don't want the script tracked
+# echo "scripts/changelog.sh" >> .gitignore
+
+# 3. Run it
+bash scripts/changelog.sh
+```
+
+Or via Claude Code: just type `/generate-changelog`
+
+## What it does
+
+- 🔍 Fetches commits since the **latest git tag**
+- 🏷️ Auto-categorizes into: **Added** / **Fixed** / **Changed** / **Removed**
+- 📝 Outputs a properly formatted `CHANGELOG.md`
+- 🔄 Prepends new entries (won't overwrite existing changelog)
+- ⏭️ Skips merge commits automatically
+
+## Example output
+
+```markdown
+# Changelog
+
+## Unreleased (since v1.2.0) — 2026-05-19
+
+### Added
+- Dark mode toggle in settings (a1b2c3d)
+- Export to PDF feature (e4f5g6h)
+
+### Fixed
+- Login redirect loop on Safari (i7j8k9l)
+- Memory leak in WebSocket handler (m0n1o2p)
+
+### Changed
+- Updated dependencies to latest versions (q3r4s5t)
+
+### Removed
+- Deprecated /v1 API endpoint (u6v7w8x)
+```
+
+## Requirements
+
+- `git` installed
+- Bash 4.0+ (macOS / Linux / WSL)
+- No external dependencies
+
+## Dry run
+
+```bash
+bash changelog.sh --dry-run
+```
+
+Print the changelog to stdout without writing any files.
 
 ---
 
-## How it works
-
-**To post a bounty**
-1. Open a GitHub issue with a clear description and acceptance criteria
-2. Comment `/opire create $XXX` in the issue to set the reward
-3. Share the link — contributors will find it
-
-**To claim a bounty**
-1. Browse the open issues below
-2. Comment `/opire try` in the issue you want to work on
-3. Submit a PR — payment is automatic on merge ✅
-
----
-
-## Active Bounties
-
-| # | Task | Amount | Status |
-|---|------|--------|--------|
-| [#1](../../issues/1) | SKILL: Generate a CHANGELOG from git history | $50 | 🟢 Open |
-| [#2](../../issues/2) | TEMPLATE: CLAUDE.md for a Next.js + SQLite project | $75 | 🟢 Open |
-| [#3](../../issues/3) | HOOK: Block destructive bash commands in Claude Code | $100 | 🟢 Open |
-| [#4](../../issues/4) | AGENT: PR reviewer with structured Markdown output | $150 | 🟢 Open |
-| [#5](../../issues/5) | WORKFLOW: n8n + Claude API — automated weekly dev summary | $200 | 🟢 Open |
-
----
-
-## Rules
-
-- Tasks must be related to Claude Code or AI tooling
-- Every issue must have clear acceptance criteria before a bounty is activated
-- Payment is handled by [Opire](https://opire.dev) (Stripe)
-- Quality over speed — a solid PR beats a fast one
-
----
-
-## Community
-
-- 🐦 X: [@ClaudeBounty](https://x.com/ClaudeBounty)
-- 📧 Contact: claudebounty@gmail.com
-
----
-
-*Started by the Claude builder community · March 2026 · MIT License*
+Part of the [Claude Builders Bounty](https://github.com/claude-builders-bounty) program.
