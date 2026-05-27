@@ -24,24 +24,26 @@ LOG_FILE = os.path.expanduser("~/.claude/hooks/blocked.log")
 # Patterns that are ALWAYS blocked (case-insensitive)
 BLOCK_PATTERNS = [
     # File system destruction
-    r"rm\s+-rf\b",
+    r"rm\s+-[a-z]*r[a-z]*f[a-z]*\b",
+    r"rm\s+-[a-z]*f[a-z]*r[a-z]*\b",
     r"rm\s+-r\s+-f\b",
+    r"rm\s+-f\s+-r\b",
     r"sudo\s+rm\b",
     r":\s*\(\)\s*\{\s*:\s*\|\:\s*\}\s*;\s*:",  # fork bomb
     r"mkfs\.",
     r"dd\s+if=",
     r">\s*/dev/sd[a-z]",
     # Database destruction
-    r"\bDROP\s+TABLE\b",
-    r"\bDROP\s+DATABASE\b",
-    r"\bTRUNCATE\s+(TABLE\s+)?\w",
+    r"\bdrop\s+table\b",
+    r"\bdrop\s+database\b",
+    r"\btruncate\s+(table\s+)?\w",
     # Dangerous git operations
     r"git\s+push\s+.*--force\b",
     r"git\s+push\s+.*-f\b",
     r"git\s+reset\s+--hard\b",
     r"git\s+clean\s+-[a-z]*f",
     # SQL injection patterns
-    r"\bDELETE\s+FROM\s+\w+\s*(?!.*\bWHERE\b)",
+    r"\bdelete\s+from\s+\w+\s*(?!.*\bwhere\b)",
     # System takeover
     r"chmod\s+777\b",
     r"chmod\s+-R\s+777\b",
@@ -55,8 +57,8 @@ BLOCK_PATTERNS = [
 
 # Patterns that require a WHERE clause for DELETE/DROP (checked separately)
 REQUIRE_WHERE_PATTERNS = [
-    (r"\bDELETE\s+FROM\s+(\w+)", "DELETE FROM requires a WHERE clause"),
-    (r"\bUPDATE\s+(\w+)\s+SET\b", "UPDATE without WHERE is dangerous — add WHERE or confirm"),
+    (r"\bdelete\s+from\s+(\w+)", "DELETE FROM requires a WHERE clause"),
+    (r"\bupdate\s+(\w+)\s+set\b", "UPDATE without WHERE is dangerous — add WHERE or confirm"),
 ]
 
 # ── Logic ──────────────────────────────────────────────────
@@ -126,7 +128,7 @@ def main():
 
     # Only intercept bash tool calls
     tool_name = stdin_data.get("tool_name", "")
-    if tool_name != "bash":
+    if tool_name.lower() != "bash":
         sys.exit(0)
 
     tool_input = stdin_data.get("tool_input", {})
