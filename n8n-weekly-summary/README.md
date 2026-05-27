@@ -52,13 +52,11 @@ Toggle the **Active** switch (top-right in n8n editor).
 
 Click **Execute Workflow** to test immediately.
 
-## Workflow structure (10 nodes)
+## Workflow structure (9 nodes)
 
 ```
-[Cron: Fri 5pm] → [Set Config] → [Fetch Commits]   ↘
-                                   [Fetch Issues]    → [Prepare Prompt] → [Claude API] → [Format] → [Deliver]
-                                   [Fetch PRs]      ↗                                    ↓
-                                                                              Slack / Discord / Email
+[Cron: Fri 5pm] → [Set Config] → [Fetch Commits] → [Fetch Issues] → [Fetch PRs]
+    → [Prepare Prompt] → [Claude API] → [Format Summary] → [Deliver Summary]
 ```
 
 ### Nodes
@@ -73,7 +71,7 @@ Click **Execute Workflow** to test immediately.
 | Prepare Claude Prompt | Code | Merge data into structured prompt |
 | Call Claude API | HTTP Request | Anthropic API — generate summary |
 | Format Summary | Code | Extract Claude's response, add footer |
-| Send to Slack/Discord/Email | HTTP Request | Deliver summary |
+| Deliver Summary | Code | Send to Slack, Discord, or Resend email based on config |
 
 ## Example output
 
@@ -104,6 +102,13 @@ Click **Execute Workflow** to test immediately.
 ## Customization
 
 - **Change schedule**: Edit the Cron node → change `0 17 * * 5` to your preferred cron expression
-- **Add more repos**: Duplicate the Fetch nodes for each additional repo, merge in the Code node
+- **Add more repos**: Duplicate the Fetch nodes for each additional repo and extend the prompt assembly in the Code node
 - **Change summary format**: Edit the prompt template in the "Prepare Claude Prompt" Code node
 - **Use a different model**: Change `model` in the "Call Claude API" node
+- **Change delivery**: Set `delivery_method` to `slack`, `discord`, or `email`
+
+## Validation
+
+- `workflow.json` is valid JSON and imports as a single n8n workflow.
+- The workflow uses a sequential execution path so each node can reliably reference prior node output.
+- Delivery is centralized in one Code node to avoid invalid empty webhook URLs for inactive channels.
