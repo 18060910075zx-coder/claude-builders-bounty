@@ -5,9 +5,6 @@
 # ============================================================
 set -euo pipefail
 
-OUTPUT_FILE="${1:-CHANGELOG.md}"
-DRY_RUN="${2:-false}"
-
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -16,6 +13,33 @@ NC='\033[0m'
 log_info()  { echo -e "${GREEN}[✓]${NC} $1"; }
 log_warn()  { echo -e "${YELLOW}[!]${NC} $1"; }
 log_error() { echo -e "${RED}[✗]${NC} $1"; }
+
+OUTPUT_FILE="CHANGELOG.md"
+DRY_RUN="false"
+
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        --dry-run|-n)
+            DRY_RUN="true"
+            ;;
+        -o|--output)
+            if [ "${2:-}" = "" ]; then
+                log_error "Missing output file after $1"
+                exit 1
+            fi
+            OUTPUT_FILE="$2"
+            shift
+            ;;
+        -*)
+            log_error "Unknown option: $1"
+            exit 1
+            ;;
+        *)
+            OUTPUT_FILE="$1"
+            ;;
+    esac
+    shift
+done
 
 # -----------------------------------------------------------
 # Check prerequisites
@@ -77,8 +101,10 @@ while IFS= read -r line; do
     HASH=$(echo "$line" | awk '{print $1}')
     MSG=$(echo "$line" | cut -d' ' -f2-)
 
-    # Lowercase prefix for case-insensitive matching
+    # Lowercase and normalize conventional commit prefixes:
+    # "feat(ui)!: message" -> "feat"
     PREFIX=$(echo "$MSG" | awk -F':' '{print tolower($1)}')
+    PREFIX=$(echo "$PREFIX" | sed -E 's/\(.*\)//; s/!$//')
 
     case "$PREFIX" in
         feat|add|added|new)
@@ -86,6 +112,9 @@ while IFS= read -r line; do
             ;;
         fix|bug|patch|hotfix|resolve)
             FIXED="${FIXED}- ${MSG#*: } (${HASH})\n"
+            ;;
+        change|changed|update|updated|refactor|perf|style|improve|tweak|chore)
+            CHANGED="${CHANGED}- ${MSG#*: } (${HASH})\n"
             ;;
         remove|delete|drop|deprecate|revert)
             REMOVED="${REMOVED}- ${MSG#*: } (${HASH})\n"
@@ -147,7 +176,7 @@ fi
 # -----------------------------------------------------------
 # Write output (prepend to existing CHANGELOG)
 # -----------------------------------------------------------
-if [ "$DRY_RUN" = "--dry-run" ] || [ "$DRY_RUN" = "-n" ]; then
+if [ "$DRY_RUN" = "true" ]; then
     echo -e "$ENTRY"
     echo ""
     log_info "Dry run complete. Use 'bash changelog.sh' to write the file."
